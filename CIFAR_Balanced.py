@@ -11,6 +11,7 @@ from tensorflow.keras.models import load_model
 from data_utils import load_CIFAR_data, generate_partial_data, generate_bal_private_data
 from FedMD import FedMD
 from Neural_Networks import train_models, cnn_2layer_fc_model, cnn_3layer_fc_model
+from utility import plot_history
 
 
 def parseArg():
@@ -170,13 +171,3 @@ if __name__ == "__main__":
     
     plot_history(fedmd)
     
-    
-    with open(os.path.join(save_dir_path, 'pre_train_result.pkl'), 'wb') as f:
-        pickle.dump(pre_train_result, f, protocol=pickle.HIGHEST_PROTOCOL)
-    with open(os.path.join(save_dir_path, 'init_result.pkl'), 'wb') as f:
-        pickle.dump(initialization_result, f, protocol=pickle.HIGHEST_PROTOCOL)
-    with open(os.path.join(save_dir_path, 'pooled_train_result.pkl'), 'wb') as f:
-        pickle.dump(pooled_train_result, f, protocol=pickle.HIGHEST_PROTOCOL)
-    with open(os.path.join(save_dir_path, 'col_performance.pkl'), 'wb') as f:
-        pickle.dump(collaboration_performance, f, protocol=pickle.HIGHEST_PROTOCOL)
-        
