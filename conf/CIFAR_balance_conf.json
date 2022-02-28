@@ -23,7 +23,7 @@
     "private_classes": [0,1,2,3,4,5,6,7,8,9],
     "public_classes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
     "is_show": False,
-    "N_rounds": 1,
+    "N_rounds": 40,
     "N_logits_matching_round": 1, 
     "N_private_training_round": 4,
     "private_training_batchsize" : 5, 
