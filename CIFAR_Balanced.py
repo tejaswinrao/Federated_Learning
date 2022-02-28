@@ -74,7 +74,7 @@ if __name__ == "__main__":
     
     
     X_train_CIFAR100, y_train_CIFAR100, X_test_CIFAR100, y_test_CIFAR100 \
-    = load_CIFAR_data(data_type="CIFAR100",
+    = load_CIFAR_data(data_type="CIFAR10",
                       standarized = True, verbose = True)
     
     # only use those CIFAR100 data whose y_labels belong to private_classes
