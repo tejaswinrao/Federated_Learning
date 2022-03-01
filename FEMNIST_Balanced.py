@@ -3,6 +3,8 @@ import errno
 import argparse
 import sys
 import pickle
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
 
 import numpy as np
 from tensorflow.keras.models import load_model
@@ -12,7 +14,25 @@ generate_partial_data
 from FedMD import FedMD
 from Neural_Networks import train_models, cnn_2layer_fc_model, cnn_3layer_fc_model
 
+DATASET_SIZE = 70000
+TRAIN_RATIO = 0.5
+VALIDATION_RATIO = 0.4
+TEST_RATIO = 0.1
 
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+X = np.concatenate([x_train, x_test])
+y = np.concatenate([y_train, y_test])
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=(1-TRAIN_RATIO))
+X_ref, X_test, y_ref, y_test = train_test_split(X_val, y_val, test_size=(0.1))
+
+X_train = X_train.astype("float32") / 255.0
+X_train = np.reshape(X_train, (-1, 28, 28, 1))
+
+X_test = X_test.astype("float32") / 255.0
+X_test = np.reshape(X_test, (-1, 28, 28, 1))
+
+X_ref = X_ref.astype("float32") / 255.0
+X_ref = np.reshape(X_ref, (-1, 28, 28, 1))
 def parseArg():
     parser = argparse.ArgumentParser(description='FedMD, a federated learning framework. \
     Participants are training collaboratively. ')
@@ -63,27 +83,17 @@ if __name__ == "__main__":
     
     del conf_dict, conf_file
     
-    X_train_MNIST, y_train_MNIST, X_test_MNIST, y_test_MNIST \
-    = load_MNIST_data(standarized = True, verbose = True)
-    
-    public_dataset = {"X": X_train_MNIST, "y": y_train_MNIST}
-    
-    
-    X_train_EMNIST, y_train_EMNIST, X_test_EMNIST, y_test_EMNIST \
-    = load_MNIST_data(standarized = True, verbose = True)
-    
-    #y_train_EMNIST += len(public_classes)
-    #y_test_EMNIST += len(public_classes)
+    public_dataset = {"X": X_ref, "y": y_ref}
     
     #generate private data
     private_data, total_private_data \
-    = generate_bal_private_data(X_train_EMNIST, y_train_EMNIST, 
+    = generate_bal_private_data(X_train, y_train, 
                                 N_parties = N_parties,             
                                 classes_in_use = private_classes, 
                                 N_samples_per_class = N_samples_per_class, 
                                 data_overlap = False)
     
-    X_tmp, y_tmp = generate_partial_data(X = X_test_EMNIST, y= y_test_EMNIST, 
+    X_tmp, y_tmp = generate_partial_data(X = X_test, y= y_test, 
                                          class_in_use = private_classes, verbose = True)
     private_test_data = {"X": X_tmp, "y": y_tmp}
     del X_tmp, y_tmp
@@ -103,8 +113,8 @@ if __name__ == "__main__":
             del model_name, model_params, tmp
         #END FOR LOOP
         pre_train_result = train_models(parties, 
-                                        X_train_MNIST, y_train_MNIST, 
-                                        X_test_MNIST, y_test_MNIST,
+                                        X_train, y_train, 
+                                        X_test, y_test,
                                         save_dir = model_saved_dir, save_names = model_saved_names,
                                         early_stopping = is_early_stopping,
                                         **pre_train_params
@@ -117,8 +127,8 @@ if __name__ == "__main__":
             tmp = load_model(os.path.join(dpath ,name))
             parties.append(tmp)
     
-    del  X_train_MNIST, y_train_MNIST, X_test_MNIST, y_test_MNIST, \
-    X_train_EMNIST, y_train_EMNIST, X_test_EMNIST, y_test_EMNIST, writer_ids_train, writer_ids_test
+    #del  X_train_MNIST, y_train_MNIST, X_test_MNIST, y_test_MNIST, \
+    #X_train_EMNIST, y_train_EMNIST, X_test_EMNIST, y_test_EMNIST, writer_ids_train, writer_ids_test
     
     
     fedmd = FedMD(parties, 
