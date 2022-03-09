@@ -3,6 +3,7 @@ from tensorflow.keras.models import clone_model, load_model
 from tensorflow.keras.callbacks import EarlyStopping
 import tensorflow as tf
 import matplotlib.pyplot as plt
+from tf.keras.optimizers import SGD
 
 from data_utils import generate_alignment_data
 from utility import plot_history
@@ -37,7 +38,7 @@ class FedMD():
             model_A_twin = None
             model_A_twin = clone_model(parties[i])
             model_A_twin.set_weights(parties[i].get_weights())
-            model_A_twin.compile(optimizer=tf.keras.optimizers.Adam(lr = 1e-3), 
+            model_A_twin.compile(optimizer=tf.keras.optimizers.SGD(lr = 1e-2), 
                                  loss = "sparse_categorical_crossentropy",
                                  metrics = ["accuracy"])
             
@@ -75,7 +76,7 @@ class FedMD():
         for model in parties:
             model_ub = clone_model(model)
             model_ub.set_weights(model.get_weights())
-            model_ub.compile(optimizer=tf.keras.optimizers.Adam(lr = 1e-3),
+            model_ub.compile(optimizer=tf.keras.optimizers.SGD(lr = 1e-2),
                              loss = "sparse_categorical_crossentropy", 
                              metrics = ["accuracy"])
             
