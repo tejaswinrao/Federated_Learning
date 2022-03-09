@@ -64,11 +64,7 @@ class FedMD():
                                     })
             
             print()
-            
-            
-            #plt.plot(model_A_twin.history.history["val_accuracy"], "k^-", label = "Val Acc")
-            plot_history(model_A_twin)
-        
+           
             del model_A, model_A_twin
         #END FOR LOOP
         
@@ -165,8 +161,10 @@ class FedMD():
         #END WHILE LOOP
         lists = collaboration_performance.items()
         x,y = zip(*lists)
-        for list in y:
-            plt.plot(list)
+        arrays = [np.array(i) for i in y]
+        plt.plot([np.mean(k) for k in zip(*arrays)])
+        #for list in y:
+        #    plt.plot(list)
         plt.savefig("accuracies")
         return collaboration_performance
     
